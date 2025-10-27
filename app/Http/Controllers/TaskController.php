@@ -14,12 +14,14 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
+        // Extract filter parameter (e.g., ?status=overdue)
         $status = $request->query('status');
 
+        // Fetch tasks based on urgency and optional filters
         $tasks = Task::query()
-            ->orderByUrgency()
-            ->when($status === 'overdue', fn($q) => $q->overdue())
-            ->when($status === 'open', fn($q) => $q->open())
+            ->orderByUrgency() // Custom scope to sort tasks by priority
+            ->when($status === 'overdue', fn($q) => $q->overdue()) // Filter overdue tasks
+            ->when($status === 'open', fn($q) => $q->open())       // Filter open tasks
             ->get();
 
         return view('tasks.index', compact('tasks', 'status'));
@@ -29,7 +31,8 @@ class TaskController extends Controller
      * Store a newly created task.
      */
     public function store(StoreTaskRequest $request)
-    {
+    {   
+        // Create a new task using validated data
         $task = Task::create($request->validated());
 
         return redirect('/')
