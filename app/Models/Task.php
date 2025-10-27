@@ -26,10 +26,16 @@ class Task extends Model
      */
     public function scopeOrderByUrgency($query)
     {
-        return $query->orderByRaw('CASE WHEN due_date IS NOT NULL THEN 0 ELSE 1 END')
-                     ->orderBy('due_date')
-                     ->orderBy('created_at', 'desc')
-                     ->orderBy('done');
+        $now = now();
+        return $query->orderByRaw("
+                CASE 
+                    WHEN done = 1 THEN 4
+                    WHEN due_date < ? THEN 1
+                    WHEN due_date IS NULL THEN 3
+                    ELSE 2
+                END
+            ", [$now])
+            ->orderBy('due_date', 'asc');
     }
 
     /**
